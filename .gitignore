@@ -1,1 +1,11 @@
+# Ignore data lake
+data-lake/
+
+# Ignore virtual environments
+airflow_env/
+
+# Ignore environment variables file
 .env
+
+# Ignore Airflow logs
+airflow_logs/
