@@ -1,4 +1,9 @@
+import os
+import sys
 import logging
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from scripts.utils import configure_logging, setup_directories, run_script_in_subprocess
 from scripts.config import BRONZE_PATHS
 

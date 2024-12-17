@@ -1,4 +1,10 @@
+import sys
+import os
 import logging
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+
 from scripts.utils import configure_logging, clean_directory
 from scripts.config import BRONZE_PATHS, RETENTION_LIMIT
 
