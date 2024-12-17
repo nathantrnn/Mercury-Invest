@@ -1,0 +1,4 @@
+kagglehub
+fredapi
+pandas
+numpy

@@ -1,0 +1,44 @@
+name: Weekly Ingestion
+
+on:
+  schedule:
+    - cron: '0 10 * * 6'
+  workflow_dispatch:
+
+jobs:
+  ingest_job:
+    runs-on: ubuntu-latest
+
+    env:
+      FRED_API_KEY: ${{ secrets.FRED_API_KEY }}
+      KAGGLE_USERNAME: ${{ secrets.KAGGLE_USERNAME }}
+      KAGGLE_KEY: ${{ secrets.KAGGLE_KEY }}
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r scripts/requirements.txt
+
+      - name: Ingest Kaggle (S&P 500)
+        run: |
+          python scripts/ingest_kaggle.py
+
+      - name: Ingest FRED data
+        run: |
+          python scripts/ingest_fred.py
+
+      - name: Retention (keep only 4 copies)
+        run: |
+          python scripts/retention.py
+
+      - name: Final Step
+        run: |
+          echo "Data ingestion complete. Only 4 most recent copies retained."
