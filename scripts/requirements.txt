@@ -2,3 +2,4 @@ kagglehub
 fredapi
 pandas
 numpy
+python-dotenv

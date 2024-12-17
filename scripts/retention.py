@@ -1,47 +1,64 @@
 import os
-import re
+import logging
+from datetime import datetime
+import sys
+from utils import setup_directories, configure_logging
 
-def retain_latest_n_files(folder_path, n=4):
+# Constants
+BRONZE_PATH = "data-lake/bronze"
+RETENTION_LIMIT = 4  # Number of latest files to retain
 
-    if not os.path.exists(folder_path):
-        return
 
-    all_files = [f for f in os.listdir(folder_path) if f.endswith(".csv")]
+def apply_retention_policy():
+    """
+    Retains only the latest RETENTION_LIMIT files in each subdirectory of BRONZE_PATH.
+    Deletes older files beyond the retention limit.
+    """
+    try:
+        logging.info("Starting retention policy application.")
 
-    # Extract YYYYMMDD from each filename, e.g. 20231202_sp500_stocks.csv
-    def get_date_prefix(filename):
-        match = re.match(r'^(\d{8})_', filename)
-        return match.group(1) if match else None
+        # Iterate over each subdirectory in BRONZE_PATH
+        for subdir in os.listdir(BRONZE_PATH):
+            subdir_path = os.path.join(BRONZE_PATH, subdir)
+            if os.path.isdir(subdir_path):
+                # List all CSV files in the subdirectory
+                files = [f for f in os.listdir(subdir_path) if f.endswith(".csv")]
 
-    # Pair each file with its date prefix
-    files_with_dates = []
-    for fname in all_files:
-        prefix = get_date_prefix(fname)
-        if prefix:
-            files_with_dates.append((fname, prefix))
+                # Extract date prefixes and sort files by date descending
+                try:
+                    files_sorted = sorted(
+                        files,
+                        key=lambda x: datetime.strptime(x.split('_')[0], "%Y%m%d"),
+                        reverse=True
+                    )
+                except ValueError as ve:
+                    logging.error(f"Filename format incorrect in {subdir_path}: {ve}")
+                    continue
 
-    # Sort by date prefix descending
-    files_with_dates.sort(key=lambda x: x[1], reverse=True)
+                # Determine files to delete
+                files_to_delete = files_sorted[RETENTION_LIMIT:]
 
-    # Keep only the n newest
-    if len(files_with_dates) > n:
-        to_delete = files_with_dates[n:]
-        for fname, _ in to_delete:
-            full_path = os.path.join(folder_path, fname)
-            print(f"Deleting old file: {full_path}")
-            os.remove(full_path)
+                for file_name in files_to_delete:
+                    file_path = os.path.join(subdir_path, file_name)
+                    try:
+                        os.remove(file_path)
+                        logging.info(f"Deleted old file: {file_path}")
+                    except Exception as e:
+                        logging.error(f"Failed to delete {file_path}: {e}")
 
-def apply_retention():
+        logging.info("Completed retention policy application.")
 
-    sp500_folder = "data-lake/bronze/sp500_kaggle"
-    fred_folder = "data-lake/bronze/fred_data"
-
-    print("Applying retention policy (4 copies) to Kaggle folder...")
-    retain_latest_n_files(sp500_folder, 4)
-
-    print("Applying retention policy (4 copies) to FRED folder...")
-    retain_latest_n_files(fred_folder, 4)
+    except Exception as e:
+        logging.error(f"Error during retention policy application: {e}")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    apply_retention()
+    # Configure logging for this script
+    configure_logging('retention.log')
+
+    # Setup necessary directories (assuming bronze directories already exist)
+    setup_directories([BRONZE_PATH])
+
+    # Apply retention policy
+    apply_retention_policy()
