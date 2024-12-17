@@ -1,34 +1,25 @@
 import logging
-from utils import configure_logging, setup_directories, run_script_in_subprocess
+from scripts.utils import configure_logging, setup_directories, run_script_in_subprocess
+from scripts.config import BRONZE_PATHS
 
-# Paths for Bronze Layer storage
-BRONZE_PATHS = {
-    "kaggle": "data-lake/bronze/sp500_kaggle",
-    "fred": "data-lake/bronze/fred_data"
-}
+SCRIPTS = [
+    {"name": "Kaggle Ingestion", "script": "scripts/ingest_kaggle.py"},
+    {"name": "FRED Ingestion", "script": "scripts/ingest_fred.py"},
+    {"name": "Retention Policy", "script": "scripts/retention.py"},
+]
 
 
 def main():
     logging.info("==== Starting Main Ingestion Pipeline ====")
 
     try:
-        # Ensure necessary directories exist
-        logging.info("Setting up directories...")
-        setup_directories(list(BRONZE_PATHS.values()))
-        logging.info("Directory setup completed.")
-
-        # Step 1: Ingest Kaggle data
-        run_script_in_subprocess("scripts/ingest_kaggle.py")
-
-        # Step 2: Ingest FRED data
-        run_script_in_subprocess("scripts/ingest_fred.py")
-
-        # Step 3: Apply retention policy
-        run_script_in_subprocess("scripts/retention.py")
-
+        setup_directories(BRONZE_PATHS.values())
+        for task in SCRIPTS:
+            logging.info(f"Running task: {task['name']}")
+            run_script_in_subprocess(task["script"])
         logging.info("==== Main Ingestion Pipeline Completed Successfully ====")
     except Exception as e:
-        logging.critical(f"Critical error during the Ingestion Pipeline: {e}")
+        logging.critical(f"Fatal error in pipeline: {e}")
         exit(1)
 
 
