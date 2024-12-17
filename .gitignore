@@ -9,3 +9,6 @@ airflow_env/
 
 # Ignore Airflow logs
 airflow_logs/
+
+# Ignore logs
+logs/
