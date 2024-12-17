@@ -1,72 +1,117 @@
-# MercuryInvest: End-to-End Stock Analysis & Portfolio Optimization
+# Mercury-Invest: End-to-End Stock Analysis & Portfolio Optimization
 
-**MercuryInvest** is a tangible data engineering and data science project focused on the **US stock market**. It employs **Apache Spark**, **Delta Lake**, **Airflow**, **Docker**, and **Python ML libraries** (Scikit-learn & TensorFlow) within a **Medallion Architecture** (Bronze → Silver → Gold). By automating **stock and macroeconomic data ingestion**, running **machine learning** models for returns forecasting, and applying **Modern Portfolio Theory** for periodic rebalancing, MercuryInvest illustrates a production-level approach to financial analytics.
-
----
-
-## Project Overview
-
-1. **Automated Data Pipelines**  
-   - **Apache Airflow** orchestrates daily/weekly data ingestion from `yfinance` (stocks) and **FRED** (macroeconomic indicators), storing raw files in a **Delta Lake**.
-   - Emphasizes a **Medallion Architecture**—raw data (Bronze), refined data (Silver), and final analytics (Gold).
-
-2. **Scalable Data Transformations**  
-   - **Apache Spark** handles large-scale ETL, computing technical indicators and joining stock returns with macro factors.
-   - Maintains robust transaction integrity through **Delta Lake** features like time-travel and ACID compliance.
-
-3. **Machine Learning for Stock Forecasting**  
-   - Predicts future returns or probabilities of outperformance with **Scikit-learn** or **TensorFlow** models.
-   - Incorporates time-series splitting to avoid lookahead bias, increasing reliability of results.
-
-4. **Portfolio Construction & Rebalancing**  
-   - Applies **Mean-Variance Optimization** (Modern Portfolio Theory) to allocate weights based on forecasted risk and returns.
-   - Rebalancing occurs monthly or quarterly, with metrics like Sharpe Ratio and drawdown stored for historical tracking.
-
-5. **Containerized Environment**  
-   - **Docker** encapsulates services (Airflow, Spark, etc.) for a reproducible local or cloud-ready environment.
-   - **Databricks Community Edition** (optional) extends Spark capabilities in a free, hosted environment.
+**Mercury-Invest** is a financial analytics platform that automates **US stock market** data ingestion, forecasting, and portfolio optimization. Using **Apache Spark**, **Delta Lake**, **Airflow**, **Docker**, and **ML frameworks** like Scikit-learn or TensorFlow within a **Medallion Architecture** (Bronze → Silver → Gold), it showcases production-level data engineering combined with quantitative finance capabilities.
 
 ---
 
-## Why MercuryInvest is Relevant
+## Key Features
 
-- **Real-World Architecture**  
-  Implements industry-standard pipeline practices: **Airflow** scheduling, **Spark** ETL at scale, and **Delta Lake** for ACID reliability.
+- **Real-World Architecture**: Automates data ingestion, transformations, and analytics using Apache Airflow, Spark, and Delta Lake.  
+- **Integrated Analytics**: Combines **machine learning** models for stock forecasting and **Modern Portfolio Theory** for optimized allocations.  
+- **Scalable & Reproducible**: Docker-based environment ensures seamless scaling, deployment, and maintenance.  
+- **Flexible Extensibility**: Supports additional data sources, advanced ML models, and new analytics requirements.
 
-- **Integrated Financial Analytics**  
-  Combines quantitative finance concepts (portfolio optimization) with modern machine learning workflows.  
-  Creates advanced analytics aligned with production-level investment pipelines.
+---
 
-- **Operational & Reproducible**  
-  **Docker** ensures portability across development, testing, and deployment environments.  
-  Potential employers can see practical code that’s designed for scaling, debugging, and monitoring.
+## Project Workflow Overview
 
-- **Flexible & Extensible**  
-  Adding new data sources, advanced models (like deep learning), or extra risk constraints is straightforward.  
-  Illustrates a design that can adapt as business or market requirements evolve.
+**Mercury-Invest** automates data pipelines, prediction modeling, and portfolio management following these steps:
+
+### 1. Automated Data Pipelines
+- **Ingestion**: Airflow schedules daily/weekly data pulls from:
+  - `yfinance` for stock market data.
+  - **FRED** for macroeconomic indicators.
+- Data is stored in the **Medallion Architecture**:
+  - **Bronze**: Raw data.
+  - **Silver**: Cleaned & joined data.
+  - **Gold**: Analytics-ready datasets.
+
+### 2. Scalable Data Transformations
+- **Spark** performs large-scale ETL and feature engineering.
+- **Delta Lake** ensures ACID compliance and versioning for tracking changes.
+
+### 3. Machine Learning for Stock Forecasting
+- **Models**: Predict stock returns or outperformance using:
+  - **Scikit-learn** for traditional ML models (e.g., Random Forest).  
+  - **TensorFlow** for time-series models like LSTM.  
+- Ensures time-series validation to avoid lookahead bias.
+
+### 4. Portfolio Optimization & Rebalancing
+- Implements **Mean-Variance Optimization (MVO)**:
+  - Assigns weights to maximize returns while minimizing portfolio risk.
+  - Tracks metrics: Sharpe Ratio, drawdown, and volatility.
+- Rebalancing frequencies: Monthly/quarterly.
+
+### 5. Deployment Environment
+- **Docker Containerization**:
+  - Includes pipelines, transformations, and ML models for reproducible testing and production.
 
 ---
 
 ## Technology Stack
 
-- **Airflow**: Orchestrates ingestion, transformations, and rebalancing tasks on a set schedule.  
-- **Spark & Delta Lake**: Large-scale data processing, ACID transactions, and time-travel queries.  
-- **Docker**: Containerizes the pipeline components for consistency and easy deployment.  
-- **Scikit-learn / TensorFlow**: Implements machine learning pipelines from feature engineering to inference.  
-- **Local/Hybrid Data Lake**: Structuring the pipeline in Bronze, Silver, Gold layers for clarity and maintainability.  
-- **Databricks Community Edition**: Optional environment for additional Spark-based experimentation.
+| Component               | Purpose                                                                 |
+|-------------------------|-------------------------------------------------------------------------|
+| **Apache Airflow**       | Schedules automated data workflows for ingestion and transformation.   |
+| **Apache Spark**         | Handles massive data transformations and feature extraction.           |
+| **Delta Lake**           | Provides transactional consistency (Bronze → Silver → Gold layers).    |
+| **Scikit-learn**         | Builds predictive ML models for forecasting.                          |
+| **TensorFlow**           | Supports advanced time-series forecasting (e.g., LSTM).               |
+| **Docker**               | Ensures consistent, reproducible environments.                        |
+| **Databricks (Optional)**| Scalable Spark environment for distributed data processing.            |
+| **Power BI (Planned)**   | Creates real-time dashboards for performance monitoring.               |
 
 ---
 
-## Potential Expansion
+## Usage Instructions
 
-- **CI/CD Integration**: Streamline testing and deployment using GitHub Actions or other pipelines.  
-- **Additional Data Sources**: Incorporate fundamentals, sentiment data, or alternative asset classes.  
-- **Enhanced Modeling**: Explore LSTM or Transformers for time-series forecasting.  
-- **Comprehensive Dashboards**: Present real-time portfolio performance in BI tools like Power BI or Streamlit.
+To replicate or extend the **Mercury-Invest** workflow:
+
+1. **Automated Data Ingestion**
+   - Use Airflow DAGs for scheduling weekly/daily data ingestion.
+   - Pull data from:
+     - `yfinance` (stocks).
+     - **FRED** (macro).
+
+2. **Data Transformation**
+   - Clean and enrich data using Apache Spark.
+   - Utilize Delta Lake to track historical versions (time-travel).
+
+3. **Machine Learning**
+   - Train ML models for forecasting. Available options include:
+     - Scikit-learn-based predictive models.
+     - TensorFlow-based models for time-series forecasting.
+
+4. **Portfolio Optimization**
+   - Run Mean-Variance Optimization and record rebalancing metrics.
+
+5. **Containerized Execution**
+   - Build and deploy the entire pipeline using **Docker** for consistency.
+
+---
+
+## Future Development Opportunities
+
+| Expansion Area              | Description                                                          |
+|-----------------------------|----------------------------------------------------------------------|
+| **CI/CD Integration**        | Automate testing, linting, and container builds via GitHub Actions. |
+| **Sector Data Inclusion**    | Leverage sector classification for greater analysis depth.           |
+| **Advanced ML Models**       | Explore LSTM/Transformers for time-series predictions.              |
+| **BI Dashboards**            | Enable real-time insights through Power BI dashboards.              |
+| **Microsoft Fabric Migration** | Unified analytics platform with improved integration capabilities. |
+
+---
+
+## Architecture Flow (Bronze → Silver → Gold)
+
+Add a **diagram** like this to visually illustrate your architecture (can be created using tools like Lucidchart or PowerPoint):
+
+```txt
+Ingestion (Airflow) --> Bronze --> Cleaning (Spark) --> Silver --> ML Models / Optimization --> Gold
+```
 
 ---
 
 ## Contact & Disclaimer
 
-This project **does not** constitute financial advice; it’s intended as a real-world data pipeline and analytics implementation for educational and professional development. For any inquiries, suggestions, or collaborative ideas, please reach out via **GitHub Issues** or your preferred communication channel.
+This project **does not** constitute financial advice. It is intended as a learning-oriented implementation of end-to-end data analytics and financial optimization pipelines. For inquiries or contributions, please create a GitHub Issue.
