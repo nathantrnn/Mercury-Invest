@@ -1,38 +1,37 @@
-import os
 import logging
-from utils import configure_logging, setup_directories
+from utils import configure_logging, setup_directories, run_script_in_subprocess
 
-# Paths for Bronze Layer
-KAGGLE_BRONZE = "data-lake/bronze/sp500_kaggle"
-FRED_BRONZE = "data-lake/bronze/fred_data"
+# Paths for Bronze Layer storage
+BRONZE_PATHS = {
+    "kaggle": "data-lake/bronze/sp500_kaggle",
+    "fred": "data-lake/bronze/fred_data"
+}
 
-# Logging configuration
-configure_logging("main_ingestion.log")
 
-def run_kaggle_ingestion():
-    logging.info("Starting Kaggle ingestion...")
-    os.system("python ingest_kaggle.py")
-    logging.info("Completed Kaggle ingestion.")
+def main():
+    logging.info("==== Starting Main Ingestion Pipeline ====")
 
-def run_fred_ingestion():
-    logging.info("Starting FRED ingestion...")
-    os.system("python ingest_fred.py")
-    logging.info("Completed FRED ingestion.")
+    try:
+        # Ensure necessary directories exist
+        logging.info("Setting up directories...")
+        setup_directories(list(BRONZE_PATHS.values()))
+        logging.info("Directory setup completed.")
 
-def apply_retention():
-    logging.info("Applying retention policy...")
-    os.system("python retention.py")
-    logging.info("Retention policy applied.")
+        # Step 1: Ingest Kaggle data
+        run_script_in_subprocess("scripts/ingest_kaggle.py")
+
+        # Step 2: Ingest FRED data
+        run_script_in_subprocess("scripts/ingest_fred.py")
+
+        # Step 3: Apply retention policy
+        run_script_in_subprocess("scripts/retention.py")
+
+        logging.info("==== Main Ingestion Pipeline Completed Successfully ====")
+    except Exception as e:
+        logging.critical(f"Critical error during the Ingestion Pipeline: {e}")
+        exit(1)
+
 
 if __name__ == "__main__":
-    logging.info("Starting main ingestion pipeline...")
-
-    # Setup directories
-    setup_directories([KAGGLE_BRONZE, FRED_BRONZE])
-
-    # Run each step
-    run_kaggle_ingestion()
-    run_fred_ingestion()
-    apply_retention()
-
-    logging.info("Main ingestion pipeline completed successfully.")
+    configure_logging("main_ingestion.log")
+    main()

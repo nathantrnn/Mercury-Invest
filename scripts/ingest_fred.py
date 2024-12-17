@@ -1,62 +1,70 @@
 import os
-from fredapi import Fred
-import pandas as pd
-from datetime import datetime
 import logging
-import sys
-from utils import setup_directories, configure_logging
+from datetime import datetime
+import pandas as pd
+from fredapi import Fred
+from dotenv import load_dotenv
+from utils import configure_logging, setup_directories
 
-# Constants
+# Load environment variables from the .env file
+load_dotenv()
+
+BRONZE_PATH = "data-lake/bronze/fred_data"
 FRED_API_KEY = os.getenv("FRED_API_KEY")
 INDICATORS = ["FEDFUNDS", "CPIAUCSL", "GDP", "UNRATE", "DGS10"]
-BRONZE_PATH = "data-lake/bronze/fred_data"
 
 
-def ingest_fred_data():
+def configure_logging_with_console(log_filename):
     """
-    Fetches selected FRED indicators and saves them as CSVs with a date prefix.
+    Configure logging to log both to a file and the console.
+    """
+    from logging.handlers import RotatingFileHandler
+
+    # Ensure log directory exists
+    os.makedirs("logs", exist_ok=True)
+
+    # Configure logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+        handlers=[
+            RotatingFileHandler(f"logs/{log_filename}", maxBytes=5 * 1024 * 1024, backupCount=3),  # File logging
+            logging.StreamHandler()  # Console logging
+        ],
+    )
+
+
+def ingest_fred():
+    """
+    Download and process data from FRED.
     """
     if not FRED_API_KEY:
-        logging.critical("FRED_API_KEY is not set in the environment.")
-        sys.exit(1)
+        logging.critical("FRED_API_KEY is not set.")
+        raise EnvironmentError("Missing FRED API key.")
 
     try:
-        logging.info("Starting ingestion of FRED data.")
-
+        logging.info("Starting FRED dataset ingestion...")
         fred = Fred(api_key=FRED_API_KEY)
         today_str = datetime.now().strftime("%Y%m%d")
 
-        for series_id in INDICATORS:
+        for indicator in INDICATORS:
             try:
-                logging.info(f"Fetching {series_id} from FRED.")
-                data_series = fred.get_series(series_id)
-                df = pd.DataFrame(data_series, columns=["Value"])
-                df["Date"] = df.index
-                df.reset_index(drop=True, inplace=True)
-                df["SeriesID"] = series_id
-
-                # Save to CSV with date prefix
-                csv_filename = f"{today_str}_{series_id}.csv"
-                csv_path = os.path.join(BRONZE_PATH, csv_filename)
+                series = fred.get_series(indicator)
+                df = pd.DataFrame(series, columns=["Value"])
+                df["Date"] = series.index
+                csv_path = os.path.join(BRONZE_PATH, f"{today_str}_{indicator}.csv")
                 df.to_csv(csv_path, index=False)
-
-                logging.info(f"Saved FRED CSV: {csv_path}")
-            except Exception as inner_e:
-                logging.error(f"Failed to fetch or save {series_id}: {inner_e}")
-
-        logging.info("Completed ingestion of FRED data.")
+                logging.info(f"Saved FRED data to: {csv_path}")
+            except Exception as e:
+                logging.error(f"Failed to fetch {indicator}: {e}",
+                              exc_info=True)  # Add stack trace for detailed logging
 
     except Exception as e:
-        logging.error(f"Error during FRED ingestion: {e}")
-        sys.exit(1)
+        logging.error(f"Error during FRED ingestion: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":
-    # Configure logging for this script
-    configure_logging('ingest_fred.log')
-
-    # Setup necessary directories
+    configure_logging("ingest_fred.log", add_console=True)
     setup_directories([BRONZE_PATH])
-
-    # Run ingestion
-    ingest_fred_data()
+    ingest_fred()
