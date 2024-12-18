@@ -3,27 +3,28 @@ from collections import defaultdict
 
 
 def apply_retention(directory, retention_limit=4):
-    print(f"Applying retention policy in: {directory}")
+    print(f"Applying retention in: {directory}")
 
     grouped_files = defaultdict(list)
 
-    # Loop through all CSV files
+    # Group files by indicator
     for file in os.listdir(directory):
         if file.endswith(".csv") and not file.startswith("."):
             _, indicator = file.split("_", 1)
             grouped_files[indicator].append(os.path.join(directory, file))
 
+    # Retain only the newest files per indicator
     for indicator, files in grouped_files.items():
-        files = sorted(files, key=os.path.getctime, reverse=True)
+        for file in sorted(files, key=os.path.getctime, reverse=True)[retention_limit:]:
+            try:
+                os.remove(file)
+                print(f"Deleted old file: {file}")
+            except Exception as e:
+                print(f"Error deleting {file}: {e}")
 
-        # Keep recent files and delete the rest
-        for file in files[retention_limit:]:
-            os.remove(file)
-            print(f"Deleted: {file}")
-
-    print(f"Retention complete for: {directory}\n")
+    print(f"Retention completed for: {directory}\n")
 
 
 if __name__ == "__main__":
-    for layer in ["data-lake/bronze/kaggle", "data-lake/bronze/fred"]:
-        apply_retention(layer)
+    for folder in ["data-lake/bronze/kaggle", "data-lake/bronze/fred"]:
+        apply_retention(folder)
