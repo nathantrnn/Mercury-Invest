@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from config import Config
+from src.ingestion.config import Config
 
 
 def handle_companies_data(df):
@@ -56,6 +56,9 @@ def handle_stocks_data(df):
     # Filter: Make sure all dates are valid and after a certain threshold, if needed
     df = df[df["Date"] >= pd.Timestamp("2010-01-01")]
 
+    numeric_columns = ["Adj Close", "Close", "High", "Low", "Open", "Volume"]
+    df[numeric_columns] = df[numeric_columns].round(4)
+
     return df
 
 
@@ -75,7 +78,6 @@ def handle_index_data(df):
 
     return df
 
-
 def transform_to_silver_kaggle(bronze_path, silver_path):
     """
     Transforms all Kaggle datasets (SP500 Companies, SP500 Stocks, SP500 Index) from the Bronze
@@ -88,7 +90,14 @@ def transform_to_silver_kaggle(bronze_path, silver_path):
         if file.endswith(".csv"):
             try:
                 bronze_file_path = os.path.join(bronze_path, file)
-                silver_file_path = os.path.join(silver_path, file)
+
+                # Remove the prefix (YYYYMMDD) and add 'cleaned_' to the filename
+                if "_" in file and file[:8].isdigit():  # Check if first 8 characters are digits
+                    cleaned_file_name = f"cleaned_{file.split('_', 1)[1]}"  # Remove the prefix entirely
+                else:
+                    cleaned_file_name = f"cleaned_{file}"  # For files without YYYYMMDD pattern
+
+                silver_file_path = os.path.join(silver_path, cleaned_file_name)
 
                 # Load Bronze data
                 print(f"Processing: {bronze_file_path}")
@@ -112,7 +121,7 @@ def transform_to_silver_kaggle(bronze_path, silver_path):
                     print(f"No valid data remaining in {file}. Skipping...")
                     continue
 
-                # Save transformed data to Silver directory
+                # Save transformed data to Silver directory with cleaned naming convention
                 df.to_csv(silver_file_path, index=False)
                 print(f"Transformed file saved to: {silver_file_path}\n")
 
