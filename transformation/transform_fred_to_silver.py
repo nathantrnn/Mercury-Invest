@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from src.ingestion.config import Config
+from ingestion.config import Config
 
 
 def transform_to_silver(bronze_path, silver_path, date_threshold="1995-01-01"):

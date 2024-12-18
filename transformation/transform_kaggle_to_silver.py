@@ -1,6 +1,6 @@
 import os
 import pandas as pd
-from src.ingestion.config import Config
+from ingestion.config import Config
 
 
 def handle_companies_data(df):
