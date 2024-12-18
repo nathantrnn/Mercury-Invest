@@ -3,8 +3,8 @@ import re
 import pytest
 from datetime import datetime
 
-from scripts.ingest_kaggle import ingest_sp500_kaggle, BRONZE_PATH as KAGGLE_BRONZE
-from scripts.ingest_fred import ingest_fred_data, BRONZE_PATH as FRED_BRONZE, INDICATORS
+from pipelines.ingest_kaggle import ingest_sp500_kaggle, BRONZE_PATH as KAGGLE_BRONZE
+from pipelines.ingest_fred import ingest_fred_data, BRONZE_PATH as FRED_BRONZE, INDICATORS
 
 @pytest.fixture(scope="module")
 def check_env():
@@ -38,7 +38,7 @@ def test_kaggle_integration(check_env, temp_kaggle_dir):
     # Override the default Bronze path
     original_bronze_path = KAGGLE_BRONZE
     try:
-        from scripts.ingest_kaggle import ingest_sp500_kaggle
+        from pipelines.ingest_kaggle import ingest_sp500_kaggle
         ingest_sp500_kaggle.__globals__["BRONZE_PATH"] = str(temp_kaggle_dir)
 
         # Run the real ingestion
@@ -57,7 +57,7 @@ def test_kaggle_integration(check_env, temp_kaggle_dir):
 
     finally:
         # Restore original BRONZE_PATH
-        from scripts.ingest_kaggle import BRONZE_PATH
+        from pipelines.ingest_kaggle import BRONZE_PATH
         ingest_sp500_kaggle.__globals__["BRONZE_PATH"] = original_bronze_path
 
 
@@ -68,7 +68,7 @@ def test_fred_integration(check_env, temp_fred_dir):
     """
     original_fred_path = FRED_BRONZE
     try:
-        from scripts.ingest_fred import ingest_fred_data
+        from pipelines.ingest_fred import ingest_fred_data
         ingest_fred_data.__globals__["BRONZE_PATH"] = str(temp_fred_dir)
 
         # Run the real ingestion
@@ -90,5 +90,5 @@ def test_fred_integration(check_env, temp_fred_dir):
             assert len(lines) > 1, f"{f.name} might be empty (no data from FRED?)."
 
     finally:
-        from scripts.ingest_fred import BRONZE_PATH
+        from pipelines.ingest_fred import BRONZE_PATH
         ingest_fred_data.__globals__["BRONZE_PATH"] = original_fred_path
