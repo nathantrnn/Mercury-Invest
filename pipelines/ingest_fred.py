@@ -22,11 +22,18 @@ def ingest_fred():
 
     for indicator in indicators:
         try:
+            # Fetch data from FRED API
             df = (
-                pd.DataFrame(fred.get_series(indicator))
-                .reset_index()
-                .rename(columns={0: "Date", "index": "Value"})
+                pd.DataFrame(fred.get_series(indicator))  # Fetch series data
+                .reset_index()  # Reset the index to get dates as a column
+                .rename(columns={"index": "Date", 0: "Value"})  # Correct column renaming
             )
+
+            # Ensure Date column is parsed correctly and enforce data types
+            df["Date"] = pd.to_datetime(df["Date"])  # Ensure Date is a datetime
+            df["Value"] = pd.to_numeric(df["Value"], errors="coerce")  # Coerce Value to numeric
+
+            # Save to the file system
             filepath = os.path.join(fred_path, f"{today_date}_{indicator}.csv")
             df.to_csv(filepath, index=False)
             print(f"Saved FRED data: {filepath}")
