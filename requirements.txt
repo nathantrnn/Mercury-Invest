@@ -1,5 +1,9 @@
-fredapi
-kaggle
-pandas
+fredapi~=0.5.2
+kaggle~=1.6.17
+pandas~=2.2.3
 numpy
-python-dotenv
+python-dotenv~=0.21.0
+
+mercury~=0.1.0
+yfinance~=0.2.50
+setuptools~=72.1.0
