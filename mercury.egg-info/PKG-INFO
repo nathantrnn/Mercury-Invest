@@ -1,0 +1,15 @@
+Metadata-Version: 2.1
+Name: mercury
+Version: 0.1.0
+Summary: A data pipeline project for financial and macroeconomic analysis.
+Author: Nathan Tran
+Author-email: nh.tran@outlook.com
+License: MIT
+Classifier: Programming Language :: Python :: 3.8
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Operating System :: OS Independent
+Requires-Python: >=3.8
+License-File: LICENSE
+Requires-Dist: pandas
+Requires-Dist: fredapi
+Requires-Dist: python-dotenv

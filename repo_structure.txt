@@ -1,0 +1,92 @@
+.
+├── LICENSE
+├── README.md
+├── data-lake
+│   ├── bronze
+│   │   ├── fred
+│   │   │   ├── raw_CPIAUCSL.csv
+│   │   │   ├── raw_DGS10.csv
+│   │   │   ├── raw_FEDFUNDS.csv
+│   │   │   ├── raw_GDP.csv
+│   │   │   └── raw_UNRATE.csv
+│   │   └── kaggle
+│   │       ├── raw_sp500_companies.csv
+│   │       ├── raw_sp500_index.csv
+│   │       └── raw_sp500_stocks.csv
+│   ├── gold
+│   └── silver
+│       ├── analytics
+│       │   ├── market
+│       │   │   ├── processed_market_returns.csv
+│       │   │   └── processed_market_volatility.csv
+│       │   ├── portfolio
+│       │   ├── sector
+│       │   └── stock
+│       ├── macro
+│       │   ├── cleaned_CPIAUCSL.csv
+│       │   ├── cleaned_DGS10.csv
+│       │   ├── cleaned_FEDFUNDS.csv
+│       │   ├── cleaned_GDP.csv
+│       │   └── cleaned_UNRATE.csv
+│       └── stocks
+│           ├── cleaned_sp500_companies.csv
+│           ├── cleaned_sp500_index.csv
+│           └── cleaned_sp500_stocks.csv
+├── logs
+├── mercury
+│   ├── __init__.py
+│   ├── __pycache__
+│   │   ├── __init__.cpython-312.pyc
+│   │   ├── config.cpython-312.pyc
+│   │   ├── main.cpython-312.pyc
+│   │   └── utils.cpython-312.pyc
+│   ├── config.py
+│   ├── greate_expectations
+│   │   ├── checkpoints
+│   │   ├── expectations
+│   │   └── validations
+│   ├── ingestion
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── ingest_fred.cpython-312.pyc
+│   │   │   └── ingest_kaggle.cpython-312.pyc
+│   │   ├── ingest_fred.py
+│   │   └── ingest_kaggle.py
+│   ├── main.py
+│   ├── tests
+│   ├── transformation
+│   │   ├── __init__.py
+│   │   ├── __pycache__
+│   │   │   ├── __init__.cpython-312.pyc
+│   │   │   ├── market_metrics.cpython-312.pyc
+│   │   │   ├── portfolio_metrics.cpython-312.pyc
+│   │   │   ├── sector_metrics.cpython-312.pyc
+│   │   │   ├── stock_metrics.cpython-312.pyc
+│   │   │   ├── transform_analytics.cpython-312.pyc
+│   │   │   ├── transform_fred_to_silver.cpython-312.pyc
+│   │   │   └── transform_kaggle_to_silver.cpython-312.pyc
+│   │   ├── market_metrics.py
+│   │   ├── portfolio_metrics.py
+│   │   ├── sector_metrics.py
+│   │   ├── stock_metrics.py
+│   │   ├── transform_analytics.py
+│   │   ├── transform_fred_to_silver.py
+│   │   └── transform_kaggle_to_silver.py
+│   └── utils.py
+├── mercury.egg-info
+│   ├── PKG-INFO
+│   ├── SOURCES.txt
+│   ├── dependency_links.txt
+│   ├── entry_points.txt
+│   ├── requires.txt
+│   └── top_level.txt
+├── notebooks
+│   ├── eda
+│   ├── ml
+│   └── test.ipynb
+├── repo_structure.txt
+├── requirements.txt
+└── setup.py
+
+30 directories, 60 files

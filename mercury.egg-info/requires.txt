@@ -1,0 +1,3 @@
+pandas
+fredapi
+python-dotenv
