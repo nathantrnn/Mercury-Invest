@@ -1,48 +1,87 @@
 import os
+import logging
 import pandas as pd
 from mercury.config import Config
-from mercury.utils import ensure_directory_exists, save_with_prefix
+from mercury.utils import (
+    load_csv,
+    clean_dataframe,
+    save_csv,
+    compute_percentage_change,
+    compute_difference
+)
+  # Use centralized configuration paths
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
+
+BRONZE_PATH = Config.BRONZE_PATHS["fred"]
+SILVER_PATH = os.path.join(Config.DATA_LAKE_PATHS["silver"], "macro")
 
 
-def transform_to_silver_fred(bronze_path, silver_path, date_threshold="1995-01-01"):
-    """
-    Transforms FRED Bronze data into Silver by cleaning and filtering.
-    """
-    ensure_directory_exists(silver_path)
-    date_threshold_dt = pd.to_datetime(date_threshold)
+def transform_fred_to_silver():
+    # Paths to raw FRED data
+    gdp_file = os.path.join(BRONZE_PATH, "raw_GDP.csv")
+    cpi_file = os.path.join(BRONZE_PATH, "raw_CPIAUCSL.csv")
+    fedfunds_file = os.path.join(BRONZE_PATH, "raw_FEDFUNDS.csv")
+    unrate_file = os.path.join(BRONZE_PATH, "raw_UNRATE.csv")
+    dgs10_file = os.path.join(BRONZE_PATH, "raw_DGS10.csv")
 
-    for file in os.listdir(bronze_path):
-        if file.endswith(".csv"):
-            try:
-                bronze_file_path = os.path.join(bronze_path, file)
-                df = pd.read_csv(bronze_file_path)
+    # Load and clean each dataset
+    # GDP: Quarterly data
+    gdp_df = clean_dataframe(load_csv(gdp_file), date_col="Date", value_col="Value")
 
-                # Clean and filter data
-                df["Date"] = pd.to_datetime(df["Date"], errors="coerce")
-                df["Value"] = pd.to_numeric(df["Value"], errors="coerce")
-                df.dropna(subset=["Date", "Value"], inplace=True)
-                df = df[df["Date"] >= date_threshold_dt]
-                df["Value"] = df["Value"].round(2)
+    # CPI: Monthly data
+    cpi_df = clean_dataframe(load_csv(cpi_file), date_col="Date", value_col="Value")
 
-                if df.empty:
-                    print(f"Skipped: No valid data in {file} after cleaning and filtering.")
-                    continue
+    # Fed Funds: Monthly data
+    fedfunds_df = clean_dataframe(load_csv(fedfunds_file), date_col="Date", value_col="Value")
 
-                # Rename 'Value' to indicator name
-                cleaned_file_name = f"cleaned_{file.split('_', 1)[-1]}"
-                indicator_name = cleaned_file_name.replace("cleaned_", "").replace(".csv", "")
-                df.rename(columns={"Value": indicator_name}, inplace=True)
+    # UNRATE: Monthly data
+    unrate_df = clean_dataframe(load_csv(unrate_file), date_col="Date", value_col="Value")
 
-                save_with_prefix(df, silver_path, cleaned_file_name, prefix="")
-                print(f"Transformed file saved to: {os.path.join(silver_path, cleaned_file_name)}\n")
+    # DGS10: Daily data
+    dgs10_df = clean_dataframe(load_csv(dgs10_file), date_col="Date", value_col="Value")
 
-            except Exception as e:
-                print(f"Error processing {file}: {e}\n")
+    # Compute GDP Growth (quarter-over-quarter)
+    # periods=1 gives the % change from one quarter to the next
+    gdp_df = compute_percentage_change(gdp_df, value_col="Value", periods=1, new_col="GDP_Growth")
+
+    # Compute YoY Inflation using CPI (year-over-year, periods=12 for monthly data)
+    cpi_df = compute_percentage_change(cpi_df, value_col="Value", periods=12, new_col="Inflation_YoY")
+
+    # Compute month-over-month difference in Fed Funds Rate
+    fedfunds_df = compute_difference(fedfunds_df, value_col="Value", new_col="FedFunds_Change")
+
+    # Compute day-over-day difference in 10-year Treasury Yield
+    dgs10_df = compute_difference(dgs10_df, value_col="Value", new_col="DGS10_Change")
+
+    # Rename columns for clarity
+    gdp_df.rename(columns={"Value": "GDP"}, inplace=True)
+    cpi_df.rename(columns={"Value": "CPI"}, inplace=True)
+    fedfunds_df.rename(columns={"Value": "FedFunds"}, inplace=True)
+    unrate_df.rename(columns={"Value": "UNRATE"}, inplace=True)
+    dgs10_df.rename(columns={"Value": "DGS10"}, inplace=True)
+
+    # Merge all dataframes on Date with an outer join
+    df_merged = gdp_df.merge(cpi_df[["Date", "CPI", "Inflation_YoY"]], on="Date", how="outer")
+    df_merged = df_merged.merge(fedfunds_df[["Date", "FedFunds", "FedFunds_Change"]], on="Date", how="outer")
+    df_merged = df_merged.merge(unrate_df[["Date", "UNRATE"]], on="Date", how="outer")
+    df_merged = df_merged.merge(dgs10_df[["Date", "DGS10", "DGS10_Change"]], on="Date", how="outer")
+
+    # Sort by Date after merging
+    df_merged.sort_values("Date", inplace=True)
+
+    # Filter data to include only rows after 01/01/1995
+    start_date = pd.Timestamp("1995-01-01")
+    df_merged = df_merged[df_merged["Date"] >= start_date]
+
+    if df_merged.empty:
+        logging.warning("No data available after 1995-01-01. Skipping save.")
+    else:
+        # Save final dataset to silver
+        save_csv(df_merged, path=SILVER_PATH, file_name="cleaned_macro_indicators.csv")
+        logging.info("Transformation to silver (macro) completed successfully.")
 
 
 if __name__ == "__main__":
-    bronze_path = Config.BRONZE_PATHS["fred"]
-    silver_path = "data-lake/silver/macro"
-    print(f"Transforming FRED data from Bronze ({bronze_path}) to Silver ({silver_path})...")
-    transform_to_silver_fred(bronze_path, silver_path, date_threshold="1995-01-01")
-    print("Transformation complete.")
+    transform_fred_to_silver()

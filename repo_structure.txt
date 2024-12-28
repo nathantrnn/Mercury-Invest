@@ -10,10 +10,14 @@
 │   │   │   ├── raw_GDP.csv
 │   │   │   └── raw_UNRATE.csv
 │   │   ├── kaggle
+│   │   │   ├── raw_raw_raw_raw_sp500_companies.csv
+│   │   │   ├── raw_raw_raw_raw_sp500_index.csv
+│   │   │   ├── raw_raw_raw_sp500_stocks.csv
+│   │   │   ├── raw_raw_sp500_companies.csv
+│   │   │   ├── raw_raw_sp500_index.csv
 │   │   │   ├── raw_sp500_companies.csv
 │   │   │   ├── raw_sp500_index.csv
 │   │   │   └── raw_sp500_stocks.csv
-│   │   ├── raw_sp500_adj_close.csv
 │   │   └── yfinance
 │   │       ├── A.csv
 │   │       ├── AAPL.csv
@@ -521,18 +525,6 @@
 │   ├── gold
 │   └── silver
 │       ├── analytics
-│       │   ├── macro
-│       │   │   └── processed_macro_metrics.csv
-│       │   ├── market
-│       │   │   ├── processed_market_returns.csv
-│       │   │   └── processed_market_volatility.csv
-│       │   ├── sector
-│       │   ├── stock
-│       │   └── stocks
-│       │       ├── beta.csv
-│       │       ├── cumulative_returns.csv
-│       │       ├── daily_returns.csv
-│       │       └── volatility.csv
 │       ├── macro
 │       │   ├── cleaned_CPIAUCSL.csv
 │       │   ├── cleaned_DGS10.csv
@@ -544,19 +536,16 @@
 │           ├── cleaned_sp500_companies.csv
 │           ├── cleaned_sp500_index.csv
 │           └── cleaned_sp500_stocks.csv
+├── docs
+│   └── data_dictionary.md
 ├── logs
 ├── mercury
 │   ├── __init__.py
 │   ├── __pycache__
 │   │   ├── __init__.cpython-312.pyc
 │   │   ├── config.cpython-312.pyc
-│   │   ├── main.cpython-312.pyc
 │   │   └── utils.cpython-312.pyc
 │   ├── config.py
-│   ├── greate_expectations
-│   │   ├── checkpoints
-│   │   ├── expectations
-│   │   └── validations
 │   ├── ingestion
 │   │   ├── __init__.py
 │   │   ├── __pycache__
@@ -579,6 +568,7 @@
 │   │   │   ├── transform_analytics.cpython-312.pyc
 │   │   │   ├── transform_fred_to_silver.cpython-312.pyc
 │   │   │   └── transform_kaggle_to_silver.cpython-312.pyc
+│   │   ├── calculate_returns.py
 │   │   ├── market_metrics.py
 │   │   ├── sector_metrics.py
 │   │   ├── stock_metrics.py
@@ -586,19 +576,10 @@
 │   │   ├── transform_fred_to_silver.py
 │   │   └── transform_kaggle_to_silver.py
 │   └── utils.py
-├── mercury.egg-info
-│   ├── PKG-INFO
-│   ├── SOURCES.txt
-│   ├── dependency_links.txt
-│   ├── entry_points.txt
-│   ├── requires.txt
-│   └── top_level.txt
 ├── notebooks
-│   ├── eda
-│   ├── ml
 │   └── test.ipynb
 ├── repo_structure.txt
 ├── requirements.txt
 └── setup.py
 
-32 directories, 570 files
+21 directories, 562 files
