@@ -1,11 +1,16 @@
+import logging
 from mercury.ingestion.ingest_fred import ingest_fred
+
+# Configure logging
+logging.basicConfig(level=logging.INFO, format="%(asctime)s | %(levelname)s | %(message)s")
 
 
 def main():
-    print("Starting the data pipeline...")
+    logging.info("Starting the data pipeline...")
     ingest_fred()
-    print("Pipeline completed!")
+    logging.info("Pipeline completed!")
 
 
 if __name__ == "__main__":
     main()
+    

@@ -2,11 +2,11 @@ import os
 
 
 class Config:
-
+    BASE_PATH = "data-lake"
     DATA_LAKE_PATHS = {
-        "bronze": os.path.join("data-lake", "bronze"),
-        "silver": os.path.join("data-lake", "silver"),
-        "gold": os.path.join("data-lake", "gold"),
+        "bronze": os.path.join(BASE_PATH, "bronze"),
+        "silver": os.path.join(BASE_PATH, "silver"),
+        "gold": os.path.join(BASE_PATH, "gold"),
     }
 
     BRONZE_PATHS = {
@@ -15,4 +15,4 @@ class Config:
     }
 
     RETENTION_LIMIT = 4
-    INDICATORS = ["FEDFUNDS", "CPIAUCSL", "GDP", "UNRATE", "DGS10"]  # FRED Indicators
+    INDICATORS = ["FEDFUNDS", "CPIAUCSL", "GDP", "UNRATE", "DGS10"]
